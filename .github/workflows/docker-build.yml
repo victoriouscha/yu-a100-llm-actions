@@ -73,7 +73,7 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
-          push: ${{ inputs.publish }}
+          push: ${{ inputs.publish == true }}
           tags: ${{ env.IMAGE_TAG }}
           provenance: false
 
