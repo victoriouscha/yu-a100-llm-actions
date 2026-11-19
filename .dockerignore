@@ -1,0 +1,14 @@
+.git
+.github
+*.zip
+*.log
+__pycache__
+*.ipynb
+*.safetensors
+*.bin
+*.pt
+*.pth
+.env
+*.pem
+id_rsa*
+id_ed25519*
