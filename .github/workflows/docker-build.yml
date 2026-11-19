@@ -2,6 +2,12 @@ name: Build and publish RunPod LLM image
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish image to Docker Hub (requires repository secrets)'
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -11,30 +17,67 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
-      - name: Checkout project
+      - name: Checkout source
         uses: actions/checkout@v4
+
+      - name: Verify build files and startup script
+        run: |
+          set -euo pipefail
+          for file in Dockerfile requirements.txt start.sh; do test -s "$file"; done
+          bash -n start.sh
 
       - name: Free disk space for CUDA and PyTorch layers
         run: |
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/share/boost /usr/local/swift || true
           sudo apt-get clean
+          docker system prune --all --force || true
           df -h /
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
-      - name: Sign in to Docker Hub
-        uses: docker/login-action@v3
+      - name: Check credentials and choose image tag
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          set -euo pipefail
+          if [[ "$PUBLISH" == 'true' ]]; then
+            if [[ -z "$DOCKERHUB_USERNAME" || -z "$DOCKERHUB_TOKEN" ]]; then
+              echo '::error::Set DOCKERHUB_USERNAME and DOCKERHUB_TOKEN in GitHub Actions repository secrets first.'
+              exit 1
+            fi
+            echo "IMAGE_TAG=${DOCKERHUB_USERNAME}/yu-a100-llm:1.0" >> "$GITHUB_ENV"
+          else
+            echo 'IMAGE_TAG=yu-a100-llm:build-check' >> "$GITHUB_ENV"
+          fi
+
+      - name: Log in to Docker Hub
+        if: ${{ inputs.publish }}
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push image
+      - name: Build image and optionally push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/yu-a100-llm:1.0
+          push: ${{ inputs.publish }}
+          tags: ${{ env.IMAGE_TAG }}
           provenance: false
+
+      - name: Build summary
+        env:
+          PUBLISH: ${{ inputs.publish }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          echo "Image: \`$IMAGE_TAG\`" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$PUBLISH" == 'true' ]]; then
+            echo 'Docker Hub publishing was requested and the preceding step succeeded.' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Build-only check completed; image was not pushed.' >> "$GITHUB_STEP_SUMMARY"
+          fi
