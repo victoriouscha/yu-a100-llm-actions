@@ -36,6 +36,18 @@ A100 80GB Pod **10대**, 각 Pod에 학생 **4명**이 접속하는 대학 GPU �
 
 ## 3. RunPod A100 한 대에서 먼저 시험하기
 
+### GPU·환경 점검 자동 스크립트
+
+Pod에 **SSH 연결된 터미널(root)**에서 다음과 같이 실행합니다. 스크립트는 GPU 텐서 연산, Python 라이브러리, SSH 서버 및 네 학생 계정을 검사하며 파일을 변경하지 않습니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/victoriouscha/yu-a100-llm-actions/main/scripts/check_runpod.sh -o /tmp/check_runpod.sh
+bash /tmp/check_runpod.sh
+```
+
+**모델 로딩/Qwen NF4/Gemma 3 검증은 별도**이며, 자동 스크립트 성공만으로 10대 배포를 확정하지 않습니다.
+
+
 - RunPod Pod 생성 시 Container Image를 `<DOCKERHUB_USERNAME>/yu-a100-llm:1.0`로 설정
 - SSH TCP 포트 `22`를 노출하고, RunPod 접속 화면의 실제 SSH 호스트/포트 사용
 - Pod 환경변수 `PUBLIC_KEY` 또는 `SSH_PUBLIC_KEY`에 관리자 SSH **공개키** 등록
