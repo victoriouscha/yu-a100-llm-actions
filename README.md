@@ -14,6 +14,8 @@ A100 80GB Pod **10대**, 각 Pod에 학생 **4명**이 접속하는 대학 GPU �
 
 ## 1. GitHub Actions에서 이미지 빌드만 시험하기 (Docker Hub 계정 불필요)
 
+- `Dockerfile`, `requirements.txt`, `start.sh`, 빌드 워크플로를 `main`에 수정하면 **빌드만 자동 시험**합니다. Docker Hub에는 업로드하지 않습니다.
+
 1. [Actions / Build and publish RunPod LLM image](https://github.com/victoriouscha/yu-a100-llm-actions/actions/workflows/docker-build.yml) 페이지를 엽니다.
 2. `Run workflow`를 누르고 `Publish image to Docker Hub` 체크를 **해제**한 상태로 실행합니다.
 3. 빌드가 성공하면 `Dockerfile`의 패키지 설치 단계가 정상 수행된 것입니다.
