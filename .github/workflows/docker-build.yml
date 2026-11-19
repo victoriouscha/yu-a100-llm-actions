@@ -1,6 +1,13 @@
 name: Build and publish RunPod LLM image
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - Dockerfile
+      - requirements.txt
+      - start.sh
+      - .github/workflows/docker-build.yml
   workflow_dispatch:
     inputs:
       publish:
