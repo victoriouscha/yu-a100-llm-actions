@@ -49,7 +49,9 @@ bash /tmp/check_runpod.sh
 
 
 - RunPod Pod 생성 시 Container Image를 `<DOCKERHUB_USERNAME>/yu-a100-llm:1.0`로 설정
-- SSH TCP 포트 `22`를 노출하고, RunPod 접속 화면의 실제 SSH 호스트/포트 사용
+- SSH TCP 포트 `22/tcp`를 노출하고, RunPod 접속 화면의 **Direct TCP Ports**에 표시되는 실제 외부 호스트/포트 사용
+- RunPod Pod Template의 **Docker Command/Start Command는 빈 값**으로 둬서 이미지의 기본 ENTRYPOINT(`/usr/local/bin/start.sh`)가 실행되도록 합니다. 기존 RunPod 공식 템플릿에 지정된 시작 명령을 그대로 복사하지 마세요.
+- Community Cloud에서는 GPU/호스트별 Direct TCP 포트 제공 여부가 다를 수 있습니다. **VS Code Remote SSH 교육을 시작하기 전에 직접 TCP SSH 접속 가능 여부부터 확인**합니다.
 - Pod 환경변수 `PUBLIC_KEY` 또는 `SSH_PUBLIC_KEY`에 관리자 SSH **공개키** 등록
 - 학생 4명 공개키는 각각 `STUDENT01_PUBKEY` ~ `STUDENT04_PUBKEY`에 별도 등록
 - `/workspace` 저장소 마운트·영속성은 RunPod Pod/볼륨 설정에서 반드시 별도 검증
