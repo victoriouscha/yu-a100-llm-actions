@@ -1,0 +1,14 @@
+# Existing teaching environment versions (review at every semester rollout).
+transformers==5.23.0
+accelerate==1.16.0
+bitsandbytes==0.50.2
+ipykernel==7.4.0
+jupyterlab
+pandas
+numpy
+matplotlib
+psutil
+sentencepiece
+protobuf
+safetensors
+huggingface_hub
